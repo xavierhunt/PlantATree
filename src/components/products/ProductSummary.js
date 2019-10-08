@@ -7,7 +7,7 @@ const ProductSummary = ({product}) => {
         <span className="card-title">{product.name}</span>
         <p>Attribute 1</p>
         <p>Attribute 2</p>
-        <p className="grey-text">${product.price} ea</p>
+        <p className="grey-text">${product.price} ea</p>        
       </div>
     </div>
   );

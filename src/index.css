@@ -26,6 +26,11 @@ form button, form h5{
   margin: 20px 0;
 }
 
+.mdc-card{
+  border-radius: 15px;
+  overflow: hidden;
+}
+
 /* code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
