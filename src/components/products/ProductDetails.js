@@ -20,7 +20,7 @@ const ProductDetails = props => {
         <div className="card z-depth-0">
           <div className="card-content">
             <div class="card-image">
-          <img src="https://i.imgur.com/I0533uv.jpg" />
+          <img src={product.image} />
             </div>
             <span className="card-title">{product.name}</span>
             <p>{product.description}</p>
