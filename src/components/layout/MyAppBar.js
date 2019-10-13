@@ -8,7 +8,6 @@ import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import ShoppingCart from "@material-ui/icons/ShoppingCart";
@@ -16,14 +15,27 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { connect } from "react-redux";
-import { NavLink } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
-import { identifier } from "@babel/types";
-import { signOut } from '../../store/actions/authActions'
+import { signOut } from "../../store/actions/authActions";
+import { Link } from "react-router-dom";
+import Badge from '@material-ui/core/Badge';
+import { withStyles } from '@material-ui/core/styles';
+import { connect } from "react-redux";
+import { firestoreConnect } from "react-redux-firebase";
+import { Redirect } from "react-router-dom";
+import { compose } from "redux";
 
 // import VisibleItemList from '../containers/VisibleItemList'
 const drawerWidth = 240;
+
+const StyledBadge1 = withStyles(theme => ({
+  badge: {
+    right: -3,
+    border: `2px solid ${theme.palette.background.paper}`,
+    padding: '0 4px',
+  },
+}))(Badge);
+
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex"
@@ -36,7 +48,7 @@ const useStyles = makeStyles(theme => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    backgroundColor: '#388E3C',
+    backgroundColor: "#388E3C"
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -82,10 +94,19 @@ const useStyles = makeStyles(theme => ({
     width: 90,
     height: 90,
     color: "fff",
-    backgroundColor: '#4CAF50'
+    backgroundColor: "#4CAF50"
   }
 }));
 const MyAppBar = props => {
+  const { products, auth } = props;
+  var cartCount = 0;
+
+  if(products){
+    products.map(function(item, i){
+        cartCount += (products[i].quantity)
+    })
+  }
+
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -96,6 +117,8 @@ const MyAppBar = props => {
   function ListItemLink(props) {
     return <ListItem button component="a" {...props} />;
   }
+
+  function drawerOpened() {}
 
   const drawer = (
     <div>
@@ -138,7 +161,7 @@ const MyAppBar = props => {
           />
         </ListItemLink>
         <Divider />
-        <ListItem button onClick={props.signOut} >
+        <ListItem button onClick={props.signOut}>
           <ListItemText
             classes={{ primary: classes.drawerButtonText }}
             primary="Sign Out"
@@ -162,16 +185,20 @@ const MyAppBar = props => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h5" noWrap>
+          <Typography style={{ marginLeft: "70px" }} variant="h5" noWrap>
             Plant A Tree
           </Typography>
-          <IconButton
-            className={classes.shoppingCart}
-            color="inherit"
-            aria-label="cart"
-          >
-            <ShoppingCart />
-          </IconButton>
+          <Link className="link" to={"/cart"}>
+            <IconButton
+              className={classes.shoppingCart}
+              color="inherit"
+              aria-label="cart"
+            >
+              <StyledBadge1 badgeContent={cartCount} color="pink">
+                <ShoppingCart />
+              </StyledBadge1>
+            </IconButton>
+          </Link>
         </Toolbar>
       </AppBar>
 
@@ -179,6 +206,7 @@ const MyAppBar = props => {
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <SwipeableDrawer
+            onOpen={drawerOpened}
             variant="temporary"
             anchor={theme.direction === "rtl" ? "right" : "left"}
             open={mobileOpen}
@@ -220,18 +248,30 @@ MyAppBar.propTypes = {
 };
 
 const mapStateToProps = state => {
+  const products =
+    state.firestore.ordered.users && state.firestore.ordered.users[0].cart;
   console.log(state);
   return {
     auth: state.firebase.auth,
-    profile: state.firebase.profile
+    profile: state.firebase.profile,
+    products
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  console.log('Signing out...')
+const mapDispatchToProps = dispatch => {
+  console.log("Signing out...");
   return {
     signOut: () => dispatch(signOut())
-  }
-}
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyAppBar);
+export default compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  firestoreConnect(props => [
+    {
+      collection: "users",
+      doc: props.auth.uid,
+      subcollections: [{ collection: "cart" }]
+    }
+  ])
+)(MyAppBar);

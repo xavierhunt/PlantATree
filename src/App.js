@@ -6,6 +6,11 @@ import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
 import ShoppingCart from './components/products/ShoppingCart';
 import MyAppBar from './components/layout/MyAppBar';
+import Checkout from './components/products/Checkout';
+import Services from './components/dashboard/Services';
+import Account from './components/auth/Account';
+
+
 
 import { connect } from 'react-redux'
 
@@ -23,7 +28,9 @@ const App = (props) => {
               <Route path="/login" component={SignIn} />
               <Route path="/signup" component={SignUp} />
               <Route path="/cart" component={ShoppingCart} />
-
+              <Route path="/checkout" component={Checkout} />
+              <Route path="/services" component={Services} />
+              <Route path="/account" component={Account} />
             </Switch>
       </div>
     </BrowserRouter>

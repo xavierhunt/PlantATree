@@ -1,15 +1,41 @@
-
-
 const initState = {
-    products: [
-        {id: 1, name: 'Product name1', price: 99.00},
-        {id: 2, name: 'Product name2', price: 55.50},
-        {id: 3, name: 'Product name3', price: 66.00},
-    ]
-}
+  productError: null
+};
 
 const productReducer = (state = initState, action) => {
-    return state;
-}
+  switch (action.type) {
+    case "ADD_PRODUCT_TO_CART_FAILED":
+      console.log("Add to cart fail");
+      return {
+        ...state,
+        productError: action.err.message
+      };
+
+    case "ADD_PRODUCT_TO_CART_SUCCESS":
+      console.log("Add to cart success");
+      return {
+        ...state,
+        productError: null
+      };
+
+    case "REMOVE_PRODUCT_FROM_CART_FAILED":
+      console.log("Remove product from cart failed");
+      return {
+        ...state,
+        productError: action.err.message
+      };
+
+    case "REMOVE_PRODUCT_FROM_CART_SUCCESS":
+      console.log("Remove from cart success");
+      window.location.reload();
+      return {
+        ...state,
+        productError: null
+      };
+
+    default:
+      return state;
+  }
+};
 
 export default productReducer;
