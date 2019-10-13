@@ -37,7 +37,6 @@ const ProductDetails = props => {
         <p>Maintenance info: {product.maintenance}</p>
         <p>Size now: {product.sizeNow}m</p>
         <p>Fully grown: ~{product.sizeGrown}m</p>
-        <p>Count: {count}</p>
       </div>
     ) : null;
     return (
