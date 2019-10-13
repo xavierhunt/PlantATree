@@ -1,36 +1,66 @@
-import React from 'react'
-import {Redirect} from 'react-router-dom';
-import {connect} from 'react-redux';
+import React from "react";
+import CartList from "../products/CartList";
+import { connect } from "react-redux";
+import { firestoreConnect } from "react-redux-firebase";
+import { Redirect } from "react-router-dom";
+import { compose } from "redux";
+import { Link } from "react-router-dom";
 
-const ShoppingCart = (props) => {
-    const { auth} = props; 
-    if(!auth.uid) return <Redirect to='/login' />
+const ShoppingCart = props => {
 
-    //const id = props.match.params.id;
-    return (
-        <div className="container section shopping-cart">
-            <div className="card z-depth-0">
-                <div className="card-content">
-                    <span className="card-title">Shopping Cart</span>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti earum necessitatibus sint, minus iure amet nulla voluptates dolorum expedita animi, vel ratione hic nostrum laboriosam quo delectus perferendis ea consectetur.</p>
-                </div>
-                <div className="card-action grey lighten-4 grey-text">
-                    <div>Total: $99.99</div>
-                    <div className="input-field">
-                        <button className="btn pink lighten-1 z-depth-1">Proceed to Checkout</button>
-                    </div>
-                </div>
-            </div>
+  const { products, auth } = props;
+  var total = 0;
+  if(products){
+    products.map(function(item, i){
+        total += (products[i].price * products[i].quantity)
+    })
+  }
+
+  console.log("CART UID: ", auth.uid);
+  if (!auth.uid) return <Redirect to="/login" />;
+  return (
+    <div>
+      <div align="center">
+        <h5>Total: ${total}</h5>
+      </div>
+      <Link to={"/checkout/"}>
+        <div align="center">
+          <button
+            style={{ fontWeight: 400, fontSize: "17px" }}
+            className="btn pink lighten-1 z-depth-1"
+          >
+            Checkout
+          </button>
         </div>
-    )
+      </Link>
+      <div className="shoppingcart container">
+        <div className="row">
+          <div className="col s12 m6">
+            <CartList products={products} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function mapStateToProps(state) {
+  const products =
+    state.firestore.ordered.users && state.firestore.ordered.users[0].cart;
+  // console.log(state);
+  return {
+    products,
+    auth: state.firebase.auth
+  };
 }
 
-const mapStateToProps = (state) => {
-    return {
-        //product: product,
-        auth: state.firebase.auth
+export default compose(
+  connect(mapStateToProps),
+  firestoreConnect(props => [
+    {
+      collection: "users",
+      doc: props.auth.uid,
+      subcollections: [{ collection: "cart" }]
     }
-}
-
-export default connect(mapStateToProps)(ShoppingCart)
-
+  ])
+)(ShoppingCart);
